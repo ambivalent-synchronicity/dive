@@ -26,7 +26,9 @@ def model(t, Vexp, pars):
     if "r" not in pars:
         raise KeyError(f"r is a required key for ""method"" = ""{method}"".")
     
+    # Supplement defaults
     rmax_opt = pars["rmax_opt"] if "rmax_opt" in pars else "user"
+    bkgd_var = pars["bkgd_var"] if "bkgd_var" in pars else "Bend"
 
     if rmax_opt == "auto":
         r_ = pars["r"]
@@ -154,7 +156,7 @@ def multigaussmodel(t, Vdata, K0, r, nGauss=1,
 def regularizationmodel(t, Vdata, K0, r,
         delta_prior=None, tau_prior=None,
         includeBackground=True, includeModDepth=True, includeAmplitude=True,
-        tauGibbs=True, deltaGibbs=True
+        tauGibbs=True, deltaGibbs=True, bkgd_var="Bend"
     ):
     """
     Generates a PyMC model for a DEER signal over time vector t (in µs) given data in Vdata.
@@ -182,7 +184,7 @@ def regularizationmodel(t, Vdata, K0, r,
         if includeModDepth:
             lamb = pm.Beta('lamb', alpha=1.3, beta=2.0, initval=0.2)
             Vmodel = (1-lamb) + lamb*Vmodel
-        
+
         # Add background
         if includeBackground:
             Bend = pm.Beta("Bend", alpha=1.0, beta=1.5)
