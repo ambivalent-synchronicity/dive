@@ -28,7 +28,7 @@ def model(t, Vexp, pars):
     
     # Supplement defaults
     rmax_opt = pars["rmax_opt"] if "rmax_opt" in pars else "user"
-    bkgd_var = pars["bkgd_var"] if "bkgd_var" in pars else "Bend"
+    sampling_vars = pars["sampling_vars"] if "sampling_vars" in pars else ["V0", "lamb", "Bend"]
 
     if rmax_opt == "auto":
         r_ = pars["r"]
@@ -50,7 +50,7 @@ def model(t, Vexp, pars):
         nGauss = pars["nGauss"]
 
         K0 = dl.dipolarkernel(t, r, integralop=True)
-        model_pymc = multigaussmodel(t, Vexp_scaled, K0, r, nGauss, bkgd_var=bkgd_var)
+        model_pymc = multigaussmodel(t, Vexp_scaled, K0, r, nGauss, sampling_vars=sampling_vars)
         
         model_pars = {"K0": K0, "r": r, "ngaussians": nGauss}
 
@@ -66,7 +66,7 @@ def model(t, Vexp, pars):
         
         tauGibbs = method == "regularization"
         deltaGibbs = method == "regularization"
-        model_pymc = regularizationmodel(t, Vexp_scaled, K0, r, delta_prior=delta_prior, tau_prior=tau_prior, tauGibbs=tauGibbs, deltaGibbs=deltaGibbs, bkgd_var=bkgd_var)
+        model_pymc = regularizationmodel(t, Vexp_scaled, K0, r, delta_prior=delta_prior, tau_prior=tau_prior, tauGibbs=tauGibbs, deltaGibbs=deltaGibbs, sampling_vars=sampling_vars)
 
         model_pars = {"r": r, "K0": K0, "L": L, "LtL": LtL, "K0tK0": K0tK0, "delta_prior": delta_prior, "tau_prior": tau_prior}
     
@@ -78,7 +78,7 @@ def model(t, Vexp, pars):
     model_pars['Vexp'] = Vexp_scaled
     model_pars['t'] = t
     model_pars['dr'] = r[1]-r[0]
-    model_pars['background'] = bkgd_var
+    model_pars['sampling_vars'] = sampling_vars
 
     model = {'model': model_pymc, 'pars': model_pars, 't': t, 'Vexp': Vexp_scaled}
     
@@ -95,7 +95,7 @@ def model(t, Vexp, pars):
     return model
 
 def multigaussmodel(t, Vdata, K0, r, nGauss=1,
-        includeBackground=True, includeModDepth=True, includeAmplitude=True, bkgd_var="Bend"
+        includeBackground=True, includeModDepth=True, includeAmplitude=True, sampling_vars=["V0","lamb","Bend"]
     ):
     """
     Generates a PyMC model for a DEER signal over time vector t
@@ -130,17 +130,31 @@ def multigaussmodel(t, Vdata, K0, r, nGauss=1,
 
         # Add modulation depth
         if includeModDepth:
-            lamb = pm.Beta('lamb', alpha=1.3, beta=2.0, initval=0.2)
-            Vmodel = (1-lamb) + lamb*Vmodel
+            if "lamb" in sampling_vars:
+                lamb = pm.Beta('lamb', alpha=1.3, beta=2.0, initval=0.2)
+                Vmodel = (1-lamb) + lamb*Vmodel
 
         # Add background
         if includeBackground:
-            if bkgd_var == "k":
+            if "k" in sampling_vars:
                 k = pm.Exponential("k", scale=0.1) # lambda = 10
                 Bend = pm.Deterministic("Bend", np.exp(0-k*t[-1])) # for reporting
-            else:
+                B = bg_exp(t,k)
+                Vmodel *= B
+            elif "Bend" in sampling_vars:
                 Bend = pm.Beta("Bend", alpha=1.0, beta=1.5)
                 k = pm.Deterministic('k', -np.log(Bend)/t[-1])  # for reporting
+                B = bg_exp(t,k)
+                Vmodel *= B
+        
+        if "l+b" in sampling_vars and "l-b" in sampling_vars:
+            lplusb = pm.TruncatedNormal("l+b", mu=0.77, sigma=1, lower=0, upper=2)
+            lminusb = pm.TruncatedNormal("l-b", mu=0, sigma=1, lower=-1, upper=1)
+            lamb = pm.Deterministic("lamb", 0.5*(lplusb+lminusb))
+            Bend = pm.Deterministic("Bend", 0.5*(lplusb-lminusb))
+            k = pm.Deterministic('k', -np.log(Bend)/t[-1])  # for reporting
+
+            Vmodel = (1-lamb) + lamb*Vmodel
             B = bg_exp(t,k)
             Vmodel *= B
 
@@ -161,7 +175,7 @@ def multigaussmodel(t, Vdata, K0, r, nGauss=1,
 def regularizationmodel(t, Vdata, K0, r,
         delta_prior=None, tau_prior=None,
         includeBackground=True, includeModDepth=True, includeAmplitude=True,
-        tauGibbs=True, deltaGibbs=True, bkgd_var="Bend"
+        tauGibbs=True, deltaGibbs=True, sampling_vars=["V0","lamb","Bend"]
     ):
     """
     Generates a PyMC model for a DEER signal over time vector t (in µs) given data in Vdata.
@@ -187,17 +201,31 @@ def regularizationmodel(t, Vdata, K0, r,
 
         # Add modulation depth
         if includeModDepth:
-            lamb = pm.Beta('lamb', alpha=1.3, beta=2.0, initval=0.2)
-            Vmodel = (1-lamb) + lamb*Vmodel
+            if "lamb" in sampling_vars:
+                lamb = pm.Beta('lamb', alpha=1.3, beta=2.0, initval=0.2)
+                Vmodel = (1-lamb) + lamb*Vmodel
 
         # Add background
         if includeBackground:
-            if bkgd_var == "k":
+            if "k" in sampling_vars:
                 k = pm.Exponential("k", scale=0.1) # lambda = 10
                 Bend = pm.Deterministic("Bend", np.exp(0-k*t[-1])) # for reporting
-            else:
+                B = bg_exp(t,k)
+                Vmodel *= B
+            elif "Bend" in sampling_vars:
                 Bend = pm.Beta("Bend", alpha=1.0, beta=1.5)
                 k = pm.Deterministic('k', -np.log(Bend)/t[-1])  # for reporting
+                B = bg_exp(t,k)
+                Vmodel *= B
+        
+        if "l+b" in sampling_vars and "l-b" in sampling_vars:
+            lplusb = pm.TruncatedNormal("l+b", mu=0.77, sigma=1, lower=0, upper=2)
+            lminusb = pm.TruncatedNormal("l-b", mu=0, sigma=1, lower=-1, upper=1)
+            lamb = pm.Deterministic("lamb", 0.5*(lplusb+lminusb))
+            Bend = pm.Deterministic("Bend", 0.5*(lplusb-lminusb))
+            k = pm.Deterministic('k', -np.log(Bend)/t[-1])  # for reporting
+
+            Vmodel = (1-lamb) + lamb*Vmodel
             B = bg_exp(t,k)
             Vmodel *= B
 
@@ -244,7 +272,7 @@ def sample(model_dic, MCMCparameters, steporder=None, NUTSpars=None, seed=None):
     model = model_dic['model']
     model_pars = model_dic['pars']
     method = model_pars['method']
-    bkgd_var = model_pars['background']
+    sampling_vars = model_pars['sampling_vars']
     
     # Set stepping methods, depending on model
     if method == "gaussian":
@@ -256,9 +284,9 @@ def sample(model_dic, MCMCparameters, steporder=None, NUTSpars=None, seed=None):
             if model_pars['ngaussians']>1:
                 NUTS_varlist.append(model['a'])
             NUTS_varlist.append(model['sigma'])
-            NUTS_varlist.append(model[bkgd_var])
-            NUTS_varlist.append(model['V0'])
-            NUTS_varlist.append(model['lamb'])
+            NUTS_varlist.append(model[sampling_vars[0]])
+            NUTS_varlist.append(model[sampling_vars[1]])
+            NUTS_varlist.append(model[sampling_vars[2]])
             if NUTSpars is None:
                 step_NUTS = pm.NUTS(NUTS_varlist)
             else:
@@ -276,7 +304,7 @@ def sample(model_dic, MCMCparameters, steporder=None, NUTSpars=None, seed=None):
             conjstep_P = randPnorm_posterior(model_pars)
             conjstep_delta = randDelta_posterior(model_pars)
             
-            NUTS_varlist = [model['V0'], model['lamb'], model[bkgd_var]]
+            NUTS_varlist = [model[sampling_vars[0]], model[sampling_vars[1]], model[sampling_vars[2]]]
             if NUTSpars is None:
                 step_NUTS = pm.NUTS(NUTS_varlist, on_unused_input="ignore")
             else:
@@ -294,7 +322,7 @@ def sample(model_dic, MCMCparameters, steporder=None, NUTSpars=None, seed=None):
                 
             conjstep_P = randPnorm_posterior(model_pars)
             
-            NUTS_varlist = [model['tau'], model['delta'], model[bkgd_var], model['V0'], model['lamb']]
+            NUTS_varlist = [model['tau'], model['delta'], model[sampling_vars[0]], model[sampling_vars[1]], model[sampling_vars[2]]]
             if NUTSpars is None:
                 step_NUTS = pm.NUTS(NUTS_varlist)
             else:
