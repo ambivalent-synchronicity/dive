@@ -118,7 +118,16 @@ def multigaussmodel(t, Vdata, K0, r, nGauss=1,
         #w = pm.Truncated('w', pm.InverseGamma.dist(alpha=0.1, beta=0.5, shape=nGauss), lower=0.02, upper=4.0)   # Old definition
 
         if nGauss>1:
-            a = pm.Dirichlet('a', a=np.ones(nGauss))
+            f_indiv = [pm.Beta('f', alpha=1, beta=1) for _ in range(nGauss-1)]
+            a_indiv = [pm.Deterministic('a_1', f_indiv[0])]
+            if nGauss == 2:
+                a_indiv.append(pm.Deterministic('a_2', 1-a_indiv[0]))
+            elif nGauss == 3:
+                a_indiv.append(pm.Deterministic('a_2', f_indiv[1]*(1-a_indiv[0])))
+                a_indiv.append(pm.Deterministic('a_3', 1-a_indiv[0]-a_indiv[1]))
+            f = pm.math.stack(f_indiv)
+            a = pm.math.stack(a_indiv)
+            #a = pm.Dirichlet('a', a=np.ones(nGauss))
         
         # Calculate distance distribution
         if nGauss==1:
@@ -260,7 +269,7 @@ def sample(model_dic, MCMCparameters, steporder=None, NUTSpars=None, seed=None):
         with model:
             NUTS_varlist = [model['r0_rel'], model['w'], model['w_mu']]
             if model_pars['nGauss']>1:
-                NUTS_varlist.append(model['a'])
+                NUTS_varlist.append(model['f'])
             NUTS_varlist.append(model['sigma'])
             NUTS_varlist.append(model[bkgd_var])
             NUTS_varlist.append(model['V0'])
