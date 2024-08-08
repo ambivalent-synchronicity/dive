@@ -33,14 +33,32 @@
             
   <div class="section" id="dive-documentation">
 <h1>dive documentation<a class="headerlink" href="#dive-documentation" title="Permalink to this headline">¶</a></h1>
-<p>dive is a Python package for Bayesian analysis of dipolar EPR (electron paramagnetic resonance) spectroscopy data through Markov chain Monte Carlo (MCMC) sampling with the Python package <cite>PyMC &lt;https://pymc.io&gt;</cite>.</p>
+<p>dive is a Python package for Bayesian analysis of dipolar EPR (electron paramagnetic resonance) spectroscopy data through Markov chain Monte Carlo (MCMC) sampling with the Python package <a class="reference external" href="https://pymc.io">PyMC</a>.</p>
 <p>See <a class="reference internal" href="usage.html"><span class="doc">Usage</span></a> for more information on how to use dive.</p>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">dive</span></code> is a Python package for analyzing DEER spectroscopy with Bayesian
+inference. When given a model, prior distributions for each parameter (which are
+already included in dive), and experimental data, Markov chain Monte Carlo
+(MCMC) sampling is run with <cite>PyMC</cite> to yield refined posterior distributions for
+each parameter. These posterior distributions provide full quantification of
+the uncertainty of all parameters, and can be analyzed for their mean,
+confidence intervals, etc.</p>
+<a class="reference internal image-reference" href="_images/figure-bayes-v6.png"><img alt="An illustration of the Bayes process." src="_images/figure-bayes-v6.png" style="width: 600px;" /></a>
+</div>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#reading-data">Reading Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#modeling">Modeling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#sampling">Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#saving">Saving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#validating">Validating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#accessing-results">Accessing Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#plotting">Plotting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Reading &amp; Creating Data</a><ul>
