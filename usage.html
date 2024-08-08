@@ -46,8 +46,7 @@
 </pre></div>
 </div>
 <p>You should also import important modules such as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dive</span>
-<span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -87,7 +86,7 @@ from DeerLab or use the built in functions at <a class="reference internal" href
 <div class="section" id="sampling">
 <h2>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h2>
 <p>You can now sample the model with PyMC through <code class="docutils literal notranslate"><span class="pre">dive.sample</span></code>. See
-doc:<cite>sampling</cite> for more information.</p>
+<a class="reference internal" href="sampling.html"><span class="doc">Sampling</span></a> for more information.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># non-parametric</span>
 <span class="n">trace_tikh</span> <span class="o">=</span> <span class="n">dive</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">model_tikh</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
 <span class="c1"># parametric</span>
@@ -122,32 +121,32 @@ we are most interested in the rightmost column titled <code class="docutils lite
 <p><code class="docutils literal notranslate"><span class="pre">r_hat</span></code> is the ratio of interchain variance to intrachain variance.
 If it is close to 1, then the variances are similar, meaning that the chains
 have converged to similar regions.</p>
-<p><code class="docutils literal notranslate"><span class="pre">r_hat</span></code> values below <code class="docutils literal notranslate"><span class="pre">1.05</span></code> suggest good convergence, and it is encouraged
+<p><code class="docutils literal notranslate"><span class="pre">r_hat</span></code> values below 1.05 suggest good convergence, and it is encouraged
 that the <code class="docutils literal notranslate"><span class="pre">r_hat</span></code> for every variable in <code class="docutils literal notranslate"><span class="pre">dive.print_summary</span></code> should be below
 this value before you continue to analysis. (If you are just testing things out,
 it is okay, though not ideal, to have higher values of <code class="docutils literal notranslate"><span class="pre">r_hat</span></code>.)</p>
-<p>Documentation can be found in :doc:plotting.</p>
+<p>Documentation can be found in <a class="reference internal" href="plotting.html"><span class="doc">Plotting</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dive</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">trace_tikh</span><span class="p">)</span>
 <span class="n">dive</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">trace_gauss</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    mean    sd      hdi_3%  hdi_97%         mcse_mean       mcse_sd         ess_bulk        ess_tail        r_hat
-$λ$         0.533   0.007   0.521   0.546   0.000   0.000   1040.0  1656.0  1.01
-$V_0$       1.007   0.010   0.990   1.026   0.000   0.000   1819.0  3126.0  1.00
-$σ$         0.021   0.001   0.019   0.023   0.000   0.000   4447.0  3908.0  1.00
-$\mathrm{lg}(α)$    -0.462  0.074   -0.597  -0.322  0.002   0.001   2225.0  3735.0  1.00
-$B_\mathrm{end}$    0.897   0.015   0.872   0.929   0.000   0.000   1390.0  970.0   1.01
-    mean    sd      hdi_3%  hdi_97%         mcse_mean       mcse_sd         ess_bulk        ess_tail        r_hat
-$λ$         0.502   0.005   0.495   0.512   0.001   0.001   16.0    70.0    1.19
-$V_0$       0.977   0.007   0.963   0.991   0.001   0.001   33.0    191.0   1.14
-$σ$         0.021   0.001   0.019   0.022   0.000   0.000   12.0    21.0    1.39
-$r_{0,1}$   3.337   0.571   2.156   3.849   0.185   0.142   7.0     123.0   1.56
-$r_{0,2}$   3.989   0.076   3.911   4.123   0.037   0.028   5.0     16.0    2.03
-$w_1$       1.157   0.908   0.348   2.998   0.265   0.192   16.0    128.0   1.32
-$w_2$       0.494   0.108   0.282   0.603   0.052   0.040   6.0     14.0    1.77
-$a_1$       0.264   0.259   0.001   0.708   0.126   0.097   6.0     51.0    1.91
-$a_2$       0.736   0.259   0.292   0.999   0.126   0.096   6.0     49.0    1.91
-$B_\mathrm{end}$    0.850   0.009   0.839   0.866   0.002   0.002   14.0    134.0   1.21
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                    mean    sd          hdi_3%      hdi_97% mcse_mean       mcse_sd ess_bulk        ess_tail        r_hat
+$λ$                     0.533       0.007   0.521   0.546   0.000       0.000       1040.0      1656.0          1.01
+$V_0$                   1.007       0.010   0.990   1.026   0.000       0.000       1819.0      3126.0          1.00
+$σ$                     0.021       0.001   0.019   0.023   0.000       0.000       4447.0      3908.0          1.00
+$\mathrm{lg}(α)$    -0.462  0.074   -0.597  -0.322  0.002       0.001       2225.0      3735.0          1.00
+$B_\mathrm{end}$    0.897   0.015   0.872   0.929   0.000       0.000       1390.0      970.0           1.01
+                    mean    sd      hdi_3%  hdi_97%         mcse_mean       mcse_sd ess_bulk        ess_tail        r_hat
+$λ$                     0.502       0.005   0.495   0.512   0.001       0.001       16.0        70.0            1.19
+$V_0$                   0.977       0.007   0.963   0.991   0.001       0.001       33.0        191.0           1.14
+$σ$                     0.021       0.001   0.019   0.022   0.000       0.000       12.0        21.0            1.39
+$r_{0,1}$           3.337   0.571   2.156   3.849   0.185       0.142       7.0         123.0           1.56
+$r_{0,2}$           3.989   0.076   3.911   4.123   0.037       0.028       5.0         16.0            2.03
+$w_1$                   1.157       0.908   0.348   2.998   0.265       0.192       16.0        128.0           1.32
+$w_2$                   0.494       0.108   0.282   0.603   0.052       0.040       6.0         14.0            1.77
+$a_1$                   0.264       0.259   0.001   0.708   0.126       0.097       6.0         51.0            1.91
+$a_2$                   0.736       0.259   0.292   0.999   0.126       0.096       6.0         49.0            1.91
+$B_\mathrm{end}$    0.850   0.009   0.839   0.866   0.002       0.002       14.0        134.0           1.21
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">az.plot_trace(trace)</span></code>: This helpful function from the <code class="docutils literal notranslate"><span class="pre">arviz</span></code> library makes
@@ -197,7 +196,7 @@ uncertainty analysis, so do this with caution.</p>
 </div>
 <div class="section" id="accessing-results">
 <h2>Accessing Results<a class="headerlink" href="#accessing-results" title="Permalink to this headline">¶</a></h2>
-<p>The output of <code class="docutils literal notranslate"><span class="pre">dive.sample</span></code> is an <a href="#id1"><span class="problematic" id="id2">`ArviZ InferenceData object&lt;https://python.arviz.org/en/latest/getting_started/XarrayforArviZ.html#xarray-for-arviz&gt;`_</span></a>
+<p>The output of <code class="docutils literal notranslate"><span class="pre">dive.sample</span></code> is an <a class="reference external" href="https://python.arviz.org/en/latest/getting_started/XarrayforArviZ.html#xarray-for-arviz">ArviZ InferenceData object</a>
 that consists of three xarray objects: <code class="docutils literal notranslate"><span class="pre">posterior</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_stats</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">observed_data</span></code>.</p>
 <p>We are primarily interested in <code class="docutils literal notranslate"><span class="pre">trace.posterior</span></code>, which is an xarray object
@@ -242,7 +241,7 @@ coordinates, and some supplementary information as attributes.</p>
 </pre></div>
 </div>
 <p>The array stores the values for each parameter in the order they were generated,
-so if we wanted to find the value of <cite>lamb</cite> for the first draw of the first
+so if we wanted to find the value of <code class="docutils literal notranslate"><span class="pre">lamb</span></code> for the first draw of the first
 chain, we would print:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">trace_tikh</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
@@ -283,7 +282,7 @@ interval) for some parameter.</p>
     <span class="n">lamb</span>     <span class="p">(</span><span class="n">hdi</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">16</span><span class="n">B</span> <span class="mf">0.5202</span> <span class="mf">0.5457</span>
 </pre></div>
 </div>
-<p><strong>More information about InferenceData objects can be found `here &lt;https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html&gt;`_.</strong></p>
+<p>More information about InferenceData objects can be found <a class="reference external" href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">here</a>.</p>
 </div>
 <div class="section" id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h2>
@@ -313,8 +312,8 @@ visualization of the uncertainty of P.</p>
 <span class="n">dive</span><span class="o">.</span><span class="n">plot_marginals</span><span class="p">(</span><span class="n">trace_gauss</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lamb&quot;</span><span class="p">,</span><span class="s2">&quot;Bend&quot;</span><span class="p">,</span><span class="s2">&quot;V0&quot;</span><span class="p">,</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span><span class="s2">&quot;r0&quot;</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">])</span> <span class="c1"># spiky/uneven plots due to poor convergence</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/marginals-1.png"><img alt="_images/marginals-1.png" src="_images/marginals-1.png" style="width: 400px;" /></a>
-<a class="reference internal image-reference" href="_images/marginals-2.png"><img alt="_images/marginals-2.png" src="_images/marginals-2.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/marginals-1.png"><img alt="_images/marginals-1.png" src="_images/marginals-1.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="_images/marginals-2.png"><img alt="_images/marginals-2.png" src="_images/marginals-2.png" style="width: 700px;" /></a>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dive</span><span class="o">.</span><span class="n">plot_correlations</span><span class="p">(</span><span class="n">trace_tikh</span><span class="p">)</span>
 <span class="n">dive</span><span class="o">.</span><span class="n">plot_correlations</span><span class="p">(</span><span class="n">trace_gauss</span><span class="p">,</span><span class="n">marginals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
