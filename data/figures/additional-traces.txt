@@ -1,0 +1,11 @@
+Four traces were too large to upload to GitHub:
+
+YopO-B-reg-100k.nc
+YopO-C-reg-long-100k.nc
+YopO-C-reg-100k.nc
+YopO-D-reg-100k.nc
+
+They can be downloaded here:
+https://drive.google.com/drive/folders/145CHI6p__lDGYYXfYGobE3msP3pwZvRD?usp=sharing
+
+Please download these to your environment before running the figure plotting code.
